@@ -36,57 +36,215 @@ st.markdown("""
 </style>
 """, unsafe_allow_html=True)
 
-# Load data from local directory
+# Load data from GitHub or local directory
 @st.cache_data
 def load_data():
-    # Define the path to your data directory
-    data_dir = r"C:\Users\saime\Downloads\Rec"
+    # GitHub repository details
+    github_user = "saimeghana9"
+    github_repo = "Recommendation_LLM"
+    github_branch = "main"
     
-    # Check if the directory exists
-    if not os.path.exists(data_dir):
-        st.error(f"Data directory not found: {data_dir}")
-        st.info("Please make sure the CSV files are in the correct directory")
-        return None, None, None, None, None
-    
+    # First try to load from GitHub
     try:
-        # Show loading progress
         progress_bar = st.progress(0)
         status_text = st.empty()
         
-        status_text.text("Loading movies data...")
-        movies_df = pd.read_csv(os.path.join(data_dir, 'movies.csv'))
+        status_text.text("Loading movies data from GitHub...")
+        movies_url = f"https://raw.githubusercontent.com/{github_user}/{github_repo}/{github_branch}/movies.csv"
+        movies_df = pd.read_csv(movies_url)
         progress_bar.progress(20)
         
-        status_text.text("Loading books data...")
-        books_df = pd.read_csv(os.path.join(data_dir, 'books.csv'))
+        status_text.text("Loading books data from GitHub...")
+        books_url = f"https://raw.githubusercontent.com/{github_user}/{github_repo}/{github_branch}/books.csv"
+        books_df = pd.read_csv(books_url)
         progress_bar.progress(40)
         
-        status_text.text("Loading food data...")
-        food_df = pd.read_csv(os.path.join(data_dir, 'food.csv'))
+        status_text.text("Loading food data from GitHub...")
+        food_url = f"https://raw.githubusercontent.com/{github_user}/{github_repo}/{github_branch}/food.csv"
+        food_df = pd.read_csv(food_url)
         progress_bar.progress(60)
         
-        status_text.text("Loading music data...")
-        music_df = pd.read_csv(os.path.join(data_dir, 'music.csv'))
+        status_text.text("Loading music data from GitHub...")
+        music_url = f"https://raw.githubusercontent.com/{github_user}/{github_repo}/{github_branch}/music.csv"
+        music_df = pd.read_csv(music_url)
         progress_bar.progress(80)
         
-        status_text.text("Loading TV shows data...")
-        tv_shows_df = pd.read_csv(os.path.join(data_dir, 'tv_shows.csv'))
+        status_text.text("Loading TV shows data from GitHub...")
+        tv_shows_url = f"https://raw.githubusercontent.com/{github_user}/{github_repo}/{github_branch}/tv_shows.csv"
+        tv_shows_df = pd.read_csv(tv_shows_url)
         progress_bar.progress(100)
         
-        status_text.text("Data loaded successfully!")
+        status_text.text("Data loaded successfully from GitHub!")
         time.sleep(0.5)
         status_text.empty()
         progress_bar.empty()
         
         return movies_df, books_df, food_df, music_df, tv_shows_df
         
-    except FileNotFoundError as e:
-        st.error(f"Data files not found: {e}")
-        st.info("Please make sure all CSV files exist in the directory")
-        return None, None, None, None, None
     except Exception as e:
-        st.error(f"Error loading data: {e}")
-        return None, None, None, None, None
+        st.warning(f"Could not load data from GitHub: {e}")
+        st.info("Trying local directory...")
+        
+        # If GitHub fails, try local directory
+        local_path = r"C:\Users\saime\Downloads\Rec"
+        
+        if not os.path.exists(local_path):
+            st.error(f"Local directory not found: {local_path}")
+            st.info("Falling back to sample data")
+            return create_sample_data()
+        
+        try:
+            progress_bar = st.progress(0)
+            status_text = st.empty()
+            
+            status_text.text("Loading movies data from local...")
+            movies_df = pd.read_csv(os.path.join(local_path, 'movies.csv'))
+            progress_bar.progress(20)
+            
+            status_text.text("Loading books data from local...")
+            books_df = pd.read_csv(os.path.join(local_path, 'books.csv'))
+            progress_bar.progress(40)
+            
+            status_text.text("Loading food data from local...")
+            food_df = pd.read_csv(os.path.join(local_path, 'food.csv'))
+            progress_bar.progress(60)
+            
+            status_text.text("Loading music data from local...")
+            music_df = pd.read_csv(os.path.join(local_path, 'music.csv'))
+            progress_bar.progress(80)
+            
+            status_text.text("Loading TV shows data from local...")
+            tv_shows_df = pd.read_csv(os.path.join(local_path, 'tv_shows.csv'))
+            progress_bar.progress(100)
+            
+            status_text.text("Data loaded successfully from local directory!")
+            time.sleep(0.5)
+            status_text.empty()
+            progress_bar.empty()
+            
+            return movies_df, books_df, food_df, music_df, tv_shows_df
+            
+        except Exception as e:
+            st.error(f"Error loading local data: {e}")
+            st.info("Falling back to sample data")
+            return create_sample_data()
+
+def create_sample_data():
+    """Create sample data for demonstration if CSV files are not available"""
+    # Sample movies data
+    movies_data = {
+        'title': ['The Shawshank Redemption', 'The Godfather', 'The Dark Knight', 
+                 'Pulp Fiction', 'Forrest Gump', 'Inception', 'The Matrix'],
+        'genre': ['Drama', 'Crime', 'Action', 'Crime', 'Drama', 'Sci-Fi', 'Action'],
+        'mood': ['Inspiring', 'Intense', 'Thrilling', 'Edgy', 'Heartwarming', 'Mind-bending', 'Exciting'],
+        'keywords': ['prison hope redemption', 'mafia family power', 'superhero villain chaos',
+                    'crime nonlinear storytelling', 'life journey love', 'dreams reality layers',
+                    'simulation action philosophy'],
+        'rating': [9.3, 9.2, 9.0, 8.9, 8.8, 8.8, 8.7],
+        'description': [
+            'Two imprisoned men bond over a number of years, finding solace and eventual redemption through acts of common decency.',
+            'The aging patriarch of an organized crime dynasty transfers control of his clandestine empire to his reluctant son.',
+            'When the menace known as the Joker wreaks havoc and chaos on the people of Gotham, Batman must accept one of the greatest psychological and physical tests of his ability to fight injustice.',
+            'The lives of two mob hitmen, a boxer, a gangster and his wife, and a pair of diner bandits intertwine in four tales of violence and redemption.',
+            'The presidencies of Kennedy and Johnson, the events of Vietnam, Watergate, and other historical events unfold through the perspective of an Alabama man with an IQ of 75.',
+            'A thief who steals corporate secrets through the use of dream-sharing technology is given the inverse task of planting an idea into the mind of a C.E.O.',
+            'A computer hacker learns from mysterious rebels about the true nature of his reality and his role in the war against its controllers.'
+        ]
+    }
+    
+    # Sample books data
+    books_data = {
+        'title': ['To Kill a Mockingbird', '1984', 'Pride and Prejudice', 
+                 'The Great Gatsby', 'The Hobbit', 'The Catcher in the Rye'],
+        'author': ['Harper Lee', 'George Orwell', 'Jane Austen', 
+                  'F. Scott Fitzgerald', 'J.R.R. Tolkien', 'J.D. Salinger'],
+        'genre': ['Fiction', 'Dystopian', 'Romance', 'Fiction', 'Fantasy', 'Fiction'],
+        'mood': ['Thought-provoking', 'Dark', 'Romantic', 'Tragic', 'Adventurous', 'Coming-of-age'],
+        'keywords': ['racism justice childhood', 'totalitarianism surveillance rebellion', 
+                    'love class society', 'american dream jazz age', 'quest fantasy adventure',
+                    'teenage angst identity'],
+        'average_rating': [4.7, 4.6, 4.5, 4.3, 4.8, 4.2],
+        'description': [
+            'The story of young Scout Finch and her father, a lawyer who defends a black man accused of raping a white woman in the Depression-era South.',
+            'A dystopian social science fiction novel that examines the consequences of totalitarianism, mass surveillance, and repressive regimentation.',
+            'A romantic novel of manners that depicts the emotional development of protagonist Elizabeth Bennet.',
+            'A story of Jay Gatsby, a self-made millionaire, and his pursuit of Daisy Buchanan, a wealthy young woman whom he loved in his youth.',
+            'A fantasy novel about the adventures of hobbit Bilbo Baggins, who is hired as a burglar by a group of dwarves on a quest to reclaim their mountain home from a dragon.',
+            'A story about Holden Caulfield and his experiences in New York City after being expelled from prep school.'
+        ]
+    }
+    
+    # Sample food data
+    food_data = {
+        'name': ['Spaghetti Carbonara', 'Chicken Tikka Masala', 'Vegetable Stir Fry', 
+                'Chocolate Chip Cookies', 'Avocado Toast', 'Greek Salad'],
+        'cuisine_type': ['Italian', 'Indian', 'Asian', 'American', 'International', 'Greek'],
+        'mood': ['Comforting', 'Spicy', 'Healthy', 'Sweet', 'Fresh', 'Refreshing'],
+        'keywords': ['pasta bacon egg cheese', 'chicken creamy tomato spicy', 'vegetables quick healthy',
+                    'chocolate sweet baked', 'avocado bread simple', 'cucumber tomato feta'],
+        'rating': [4.8, 4.5, 4.2, 4.7, 4.0, 4.3],
+        'ingredients': ['Spaghetti, eggs, cheese, pancetta, black pepper', 
+                       'Chicken, yogurt, spices, tomato sauce, cream',
+                       'Mixed vegetables, soy sauce, garlic, ginger, oil',
+                       'Flour, butter, sugar, chocolate chips, eggs',
+                       'Bread, avocado, salt, pepper, olive oil',
+                       'Cucumber, tomato, red onion, feta cheese, olives, olive oil'],
+        'description': [
+            'A classic Italian pasta dish with a creamy egg-based sauce, pancetta, and cheese.',
+            'A popular Indian dish featuring grilled chicken in a spiced tomato and cream sauce.',
+            'A quick and healthy dish with fresh vegetables stir-fried with Asian flavors.',
+            'Classic homemade cookies with chunks of chocolate throughout.',
+            'Simple yet delicious toast topped with mashed avocado and seasonings.',
+            'A refreshing salad with Mediterranean ingredients and a tangy dressing.'
+        ]
+    }
+    
+    # Sample music data
+    music_data = {
+        'title': ['Bohemian Rhapsody', 'Hotel California', 'Blinding Lights', 
+                 'Shape of You', 'Sweet Child O\' Mine', 'Billie Jean'],
+        'artist': ['Queen', 'Eagles', 'The Weeknd', 
+                  'Ed Sheeran', 'Guns N\' Roses', 'Michael Jackson'],
+        'genre': ['Rock', 'Rock', 'Pop', 'Pop', 'Rock', 'Pop'],
+        'mood': ['Epic', 'Mysterious', 'Energetic', 'Catchy', 'Nostalgic', 'Iconic'],
+        'keywords': ['opera rock epic', 'california hotel mystery', 'synthwave retro upbeat',
+                    'pop catchy dance', 'rock guitar riff nostalgic', 'pop iconic dance'],
+        'lyrics': [
+            'Is this the real life? Is this just fantasy? Caught in a landslide...',
+            'On a dark desert highway, cool wind in my hair...',
+            'I been tryna call, I been on my own for long enough...',
+            'The club isn\'t the best place to find a lover...',
+            'She\'s got a smile that it seems to me, reminds me of childhood memories...',
+            'She was more like a beauty queen from a movie scene...'
+        ]
+    }
+    
+    # Sample TV shows data
+    tv_shows_data = {
+        'title': ['Breaking Bad', 'Game of Thrones', 'Friends', 
+                 'Stranger Things', 'The Office', 'The Crown'],
+        'genre': ['Drama', 'Fantasy', 'Comedy', 'Sci-Fi', 'Comedy', 'Drama'],
+        'mood': ['Intense', 'Epic', 'Funny', 'Nostalgic', 'Quirky', 'Regal'],
+        'keywords': ['chemistry crime transformation', 'fantasy politics dragons', 'friendship comedy relationships',
+                    '80s supernatural mystery', 'workplace mockumentary comedy', 'royalty history drama'],
+        'rating': [9.5, 9.2, 8.9, 8.7, 8.9, 8.6],
+        'description': [
+            'A high school chemistry teacher diagnosed with cancer turns to manufacturing and selling methamphetamine to secure his family\'s future.',
+            'Nine noble families fight for control over the lands of Westeros, while an ancient enemy returns after being dormant for millennia.',
+            'Follows the personal and professional lives of six twenty to thirty-something-year-old friends living in Manhattan.',
+            'When a young boy vanishes, a small town uncovers a mystery involving secret experiments, terrifying supernatural forces and one strange little girl.',
+            'A mockumentary on a group of typical office workers, where the workday consists of ego clashes, inappropriate behavior, and tedium.',
+            'Follows the political rivalries and romance of Queen Elizabeth II\'s reign and the events that shaped the second half of the 20th century.'
+        ]
+    }
+    
+    return (
+        pd.DataFrame(movies_data),
+        pd.DataFrame(books_data),
+        pd.DataFrame(food_data),
+        pd.DataFrame(music_data),
+        pd.DataFrame(tv_shows_data)
+    )
 
 class AdvancedRecommender:
     def __init__(self, movies_df, books_df, food_df, music_df, tv_shows_df):
@@ -567,12 +725,8 @@ def main():
             st.markdown(message["content"])
     
     # Input area
-    if prompt := st.chat_input("What would you like recommendations for?") or selected_prompt:
+    if prompt := st.chat_input("What would you like recommendations for?"):
         # Add user message to chat history
-        if selected_prompt:
-            prompt = selected_prompt
-            selected_prompt = None
-        
         st.session_state.messages.append({"role": "user", "content": prompt})
         
         # Display user message
@@ -602,4 +756,3 @@ if __name__ == "__main__":
         """,
         unsafe_allow_html=True
     )
-  
