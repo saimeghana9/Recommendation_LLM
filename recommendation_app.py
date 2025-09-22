@@ -6,6 +6,7 @@ from sklearn.metrics.pairwise import cosine_similarity
 import time
 import os
 import re
+from difflib import get_close_matches
 
 # Set page config
 st.set_page_config(
@@ -270,6 +271,31 @@ class AdvancedRecommender:
         self.prepare_domain_data()
         # Precompute TF-IDF models
         self.train_tfidf_models()
+        
+        # Common misspellings mapping
+        self.common_misspellings = {
+            'romcom': 'romcom',
+            'romcoms': 'romcom',
+            'romcom mobies': 'romcom movies',
+            'romcom moveis': 'romcom movies',
+            'romcom moives': 'romcom movies',
+            'mobies': 'movies',
+            'moveis': 'movies',
+            'moives': 'movies',
+            'muvi': 'movie',
+            'muvies': 'movies',
+            'bok': 'book',
+            'boks': 'books',
+            'recepie': 'recipe',
+            'recipie': 'recipe',
+            'reciepe': 'recipe',
+            'musik': 'music',
+            'muzik': 'music',
+            'musick': 'music',
+            'tvshow': 'tv show',
+            'tvshows': 'tv shows',
+            'television': 'tv'
+        }
     
     def prepare_domain_data(self):
         """Prepare data for each domain with combined text features"""
@@ -352,58 +378,67 @@ class AdvancedRecommender:
             self.tfidf_vectorizers[domain] = vectorizer
             self.tfidf_matrices[domain] = tfidf_matrix
     
-    def get_recommendations(self, domain: str, query: str, n_recommendations: int = 3):
-        """Get recommendations using TF-IDF and cosine similarity"""
-        if domain not in self.tfidf_vectorizers:
-            return pd.DataFrame()
+    def correct_spelling(self, query):
+        """Correct common spelling mistakes in the query"""
+        query_lower = query.lower()
         
-        vectorizer = self.tfidf_vectorizers[domain]
-        tfidf_matrix = self.tfidf_matrices[domain]
+        # First, check for exact misspellings
+        for misspelling, correction in self.common_misspellings.items():
+            if misspelling in query_lower:
+                query_lower = query_lower.replace(misspelling, correction)
         
-        query_vec = vectorizer.transform([query])
+        # Then use fuzzy matching for individual words
+        words = query_lower.split()
+        corrected_words = []
         
-        # Calculate cosine similarities
-        similarities = cosine_similarity(query_vec, tfidf_matrix).flatten()
-        
-        # Get top N recommendations
-        df = getattr(self, f"{domain}_df")
-        top_indices = similarities.argsort()[::-1]  # Sort all indices by similarity
-        
-        # Filter out already recommended items
-        unique_recs = []
-        title_col = 'title' if domain != 'food' else 'name'
-        
-        for idx in top_indices:
-            # Only consider items with reasonable similarity
-            if similarities[idx] < 0.05:  # Lower threshold for broader matching
+        for word in words:
+            if len(word) <= 2:  # Skip very short words
+                corrected_words.append(word)
                 continue
                 
-            item_id = df.iloc[idx][title_col]
-            if item_id not in self.recommended_items[domain]:
-                item = df.iloc[idx].copy()
-                item['similarity_score'] = similarities[idx]  # Add similarity score
-                unique_recs.append(item)
-                self.recommended_items[domain].add(item_id)
-            if len(unique_recs) >= n_recommendations:
-                break
+            # Check if this word might be a misspelling of common domain terms
+            domain_terms = ['movie', 'movies', 'film', 'book', 'books', 'music', 'song', 
+                          'food', 'recipe', 'tv', 'show', 'shows', 'romcom', 'romantic', 'comedy']
+            
+            close_matches = get_close_matches(word, domain_terms, n=1, cutoff=0.7)
+            if close_matches:
+                corrected_words.append(close_matches[0])
+            else:
+                corrected_words.append(word)
         
-        # If we didn't find enough matches, try a broader search
-        if len(unique_recs) < n_recommendations:
-            for idx in top_indices:
-                item_id = df.iloc[idx][title_col]
-                if item_id not in self.recommended_items[domain]:
-                    item = df.iloc[idx].copy()
-                    item['similarity_score'] = similarities[idx]  # Add similarity score
-                    unique_recs.append(item)
-                    self.recommended_items[domain].add(item_id)
-                if len(unique_recs) >= n_recommendations:
-                    break
-        
-        return pd.DataFrame(unique_recs).reset_index(drop=True).head(n_recommendations)
+        return ' '.join(corrected_words)
     
     def detect_domain(self, query: str):
-        """Enhanced domain detection with comprehensive keyword recognition"""
-        query_lower = query.lower()
+        """Enhanced domain detection with spelling correction and single-word support"""
+        # Correct spelling first
+        corrected_query = self.correct_spelling(query)
+        query_lower = corrected_query.lower()
+        
+        # Single word domain mapping
+        single_word_domains = {
+            'movies': ['movie', 'film', 'cinema', 'romcom', 'thriller', 'comedy', 'drama', 'action'],
+            'tv_shows': ['tv', 'show', 'series', 'sitcom', 'kdrama'],
+            'music': ['music', 'song', 'track', 'album', 'jazz', 'rock', 'pop'],
+            'books': ['book', 'novel', 'read', 'fiction', 'fantasy', 'romance'],
+            'food': ['food', 'recipe', 'dish', 'cooking', 'meal', 'pasta', 'pizza']
+        }
+        
+        # Check for single word queries
+        if len(query_lower.split()) == 1:
+            for domain, words in single_word_domains.items():
+                if query_lower in words:
+                    return domain
+            # If single word not found in mapping, default to movies for common entertainment terms
+            if any(term in query_lower for term in ['movie', 'film', 'romcom']):
+                return 'movies'
+            elif any(term in query_lower for term in ['tv', 'show', 'series']):
+                return 'tv_shows'
+            elif any(term in query_lower for term in ['music', 'song']):
+                return 'music'
+            elif any(term in query_lower for term in ['book', 'read']):
+                return 'books'
+            elif any(term in query_lower for term in ['food', 'recipe']):
+                return 'food'
         
         # Comprehensive domain mapping with extensive keyword matching
         domain_keywords = {
@@ -411,7 +446,7 @@ class AdvancedRecommender:
                 # General movie terms
                 'movie', 'film', 'cinema', 'watch', 'thriller', 'funny', 'mysterious', 'romance', 'comedy', 'drama',
                 'animated', 'holiday', 'courtroom', 'family', 'sports', 'sci-fi', 'tearjerker', 'classic',
-                'time-travel', 'bollywood', 'realistic', 'iconic', 'cinephile', 'rom-com', 'notting hill',
+                'time-travel', 'bollywood', 'realistic', 'iconic', 'cinephile', 'romcom','rom-com', 'notting hill',
                 'inception', 'dark knight', 'black-and-white', 'slow-burn', 'feel-good', 'underrated',
                 'powerful', 'inspirational', 'character depth', 'rewatch', 'award-winning', 'epic',
                 'oscar', 'director', 'actor', 'actress', 'screenplay', 'plot', 'scene', 'sequel', 'prequel',
@@ -494,22 +529,28 @@ class AdvancedRecommender:
             ]
         }
         
-        # Score each domain based on keyword matches
+        # Score each domain based on keyword matches with fuzzy matching
         domain_scores = {domain: 0 for domain in domain_keywords}
         
         for domain, keywords in domain_keywords.items():
             for keyword in keywords:
                 # Use word boundaries to avoid partial matches
                 if re.search(r'\b' + re.escape(keyword) + r'\b', query_lower):
-                    domain_scores[domain] += 1
+                    domain_scores[domain] += 2  # Exact match gets higher score
+                # Also check for partial matches with fuzzy matching
+                elif len(keyword) > 3 and keyword in query_lower:
+                    domain_scores[domain] += 1  # Partial match gets lower score
         
         # Find the domain with the highest score
         best_domain = max(domain_scores, key=domain_scores.get)
         
-        # Only return a domain if it has at least one match
+        # Only return a domain if it has at least one match, otherwise default to movies
         if domain_scores[best_domain] > 0:
             return best_domain
         else:
+            # Default to movies for entertainment-related single words
+            if len(query_lower.split()) == 1:
+                return 'movies'
             return None
     
     def enhance_query(self, query, domain):
@@ -523,7 +564,8 @@ class AdvancedRecommender:
                 'love': ['romance', 'romantic', 'relationship', 'heartfelt', 'emotional'],
                 'action': ['adventure', 'thrilling', 'exciting', 'suspenseful', 'intense'],
                 'great plots': ['story', 'narrative', 'plot twists', 'engaging', 'compelling'],
-                'movies': ['film', 'cinema', 'motion picture', 'feature']
+                'movies': ['film', 'cinema', 'motion picture', 'feature'],
+                'romcom': ['romantic comedy', 'romance', 'comedy', 'love story']
             },
             'food': {
                 'pasta': ['noodles', 'spaghetti', 'macaroni', 'penne', 'fettuccine', 'linguine'],
@@ -600,6 +642,55 @@ class AdvancedRecommender:
                        self._format_recommendations(recs.head(3), domain, True)
         
         return self._format_recommendations(recs, domain, False)
+    
+    def get_recommendations(self, domain: str, query: str, n_recommendations: int = 3):
+        """Get recommendations using TF-IDF and cosine similarity"""
+        if domain not in self.tfidf_vectorizers:
+            return pd.DataFrame()
+        
+        vectorizer = self.tfidf_vectorizers[domain]
+        tfidf_matrix = self.tfidf_matrices[domain]
+        
+        query_vec = vectorizer.transform([query])
+        
+        # Calculate cosine similarities
+        similarities = cosine_similarity(query_vec, tfidf_matrix).flatten()
+        
+        # Get top N recommendations
+        df = getattr(self, f"{domain}_df")
+        top_indices = similarities.argsort()[::-1]  # Sort all indices by similarity
+        
+        # Filter out already recommended items
+        unique_recs = []
+        title_col = 'title' if domain != 'food' else 'name'
+        
+        for idx in top_indices:
+            # Only consider items with reasonable similarity
+            if similarities[idx] < 0.05:  # Lower threshold for broader matching
+                continue
+                
+            item_id = df.iloc[idx][title_col]
+            if item_id not in self.recommended_items[domain]:
+                item = df.iloc[idx].copy()
+                item['similarity_score'] = similarities[idx]  # Add similarity score
+                unique_recs.append(item)
+                self.recommended_items[domain].add(item_id)
+            if len(unique_recs) >= n_recommendations:
+                break
+        
+        # If we didn't find enough matches, try a broader search
+        if len(unique_recs) < n_recommendations:
+            for idx in top_indices:
+                item_id = df.iloc[idx][title_col]
+                if item_id not in self.recommended_items[domain]:
+                    item = df.iloc[idx].copy()
+                    item['similarity_score'] = similarities[idx]  # Add similarity score
+                    unique_recs.append(item)
+                    self.recommended_items[domain].add(item_id)
+                if len(unique_recs) >= n_recommendations:
+                    break
+        
+        return pd.DataFrame(unique_recs).reset_index(drop=True).head(n_recommendations)
     
     def _format_recommendations(self, recs, domain, is_similar=False):
         """Format recommendations based on domain"""
