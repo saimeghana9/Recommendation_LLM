@@ -1,0 +1,276 @@
+{
+  "1": {
+    "prompt": "Recommend a movie for a rainy day",
+    "domain": "movies",
+    "method": "Sentence-BERT",
+    "result": [
+      {
+        "title": "The Story",
+        "genre": "Thriller",
+        "rating": 5.7,
+        "mood": "funny"
+      },
+      {
+        "title": "A Story",
+        "genre": "Western",
+        "rating": 8.1,
+        "mood": "funny"
+      },
+      {
+        "title": "In Story",
+        "genre": "Sci-Fi",
+        "rating": 3.5,
+        "mood": "mysterious"
+      }
+    ]
+  },
+  "2": {
+    "prompt": "Suggest a book for bedtime",
+    "domain": "books",
+    "method": "Sentence-BERT",
+    "result": [
+      {
+        "title": "In Adventure",
+        "author": "Stephen King",
+        "genre": "History",
+        "mood": "mysterious"
+      },
+      {
+        "title": "The Story",
+        "author": "Mark Twain",
+        "genre": "Educational",
+        "mood": "melancholic"
+      },
+      {
+        "title": "In Quest",
+        "author": "Stephen King",
+        "genre": "Educational",
+        "mood": "inspiring"
+      },
+      {
+        "title": "A Story",
+        "author": "Agatha Christie",
+        "genre": "Fiction",
+        "mood": "exciting"
+      },
+      {
+        "title": "The Quest",
+        "author": "Zadie Smith",
+        "genre": "Educational",
+        "mood": "exciting"
+      }
+    ]
+  },
+  "3": {
+    "prompt": "Find music for studying",
+    "domain": "music",
+    "method": "Sentence-BERT",
+    "result": [
+      {
+        "title": "Smile Times",
+        "artist": "Kendrick Lamar",
+        "genre": "Classical",
+        "mood": "happy"
+      },
+      {
+        "title": "Lonely Tonight",
+        "artist": "Kendrick Lamar",
+        "genre": "Classical",
+        "mood": "sad"
+      },
+      {
+        "title": "The Dream",
+        "artist": "Kendrick Lamar",
+        "genre": "Jazz",
+        "mood": "angry"
+      },
+      {
+        "title": "Rain Soul",
+        "artist": "Maroon 5",
+        "genre": "Classical",
+        "mood": "sad"
+      },
+      {
+        "title": "Smile Moments",
+        "artist": "Harry Styles",
+        "genre": "Indie",
+        "mood": "happy"
+      }
+    ]
+  },
+  "4": {
+    "prompt": "What food goes well with a movie night?",
+    "domain": "movies",
+    "method": "Sentence-BERT",
+    "result": [
+      {
+        "title": "In Quest",
+        "genre": "Thriller",
+        "rating": 4.5,
+        "mood": "funny"
+      },
+      {
+        "title": "Night Curse",
+        "genre": "Horror",
+        "rating": 8.0,
+        "mood": "energetic"
+      }
+    ]
+  },
+  "5": {
+    "prompt": "Recommend a TV show for the family",
+    "domain": "movies",
+    "method": "Sentence-BERT",
+    "result": [
+      {
+        "title": "The Quest",
+        "genre": "Family",
+        "rating": 6.8,
+        "mood": "dramatic"
+      },
+      {
+        "title": "A Dream",
+        "genre": "Family",
+        "rating": 8.8,
+        "mood": "dramatic"
+      },
+      {
+        "title": "In Journey",
+        "genre": "Family",
+        "rating": 4.3,
+        "mood": "dramatic"
+      }
+    ]
+  },
+  "6": {
+    "prompt": "Suggest a sad song",
+    "domain": "music",
+    "method": "Sentence-BERT",
+    "result": [
+      {
+        "title": "Lonely Heart",
+        "artist": "Coldplay",
+        "genre": "Hip-Hop",
+        "mood": "sad"
+      },
+      {
+        "title": "Goodbye Heart",
+        "artist": "Bad Bunny",
+        "genre": "Hip-Hop",
+        "mood": "sad"
+      },
+      {
+        "title": "Lonely Forever",
+        "artist": "Bad Bunny",
+        "genre": "Hip-Hop",
+        "mood": "sad"
+      }
+    ]
+  },
+  "7": {
+    "prompt": "Find an energetic movie",
+    "domain": "movies",
+    "method": "Sentence-BERT",
+    "result": [
+      {
+        "title": "A Journey",
+        "genre": "Sci-Fi",
+        "rating": 3.8,
+        "mood": "energetic"
+      },
+      {
+        "title": "The Fire",
+        "genre": "Action",
+        "rating": 4.3,
+        "mood": "energetic"
+      }
+    ]
+  },
+  "8": {
+    "prompt": "Recommend a history book",
+    "domain": "books",
+    "method": "Sentence-BERT",
+    "result": [
+      {
+        "title": "In Story",
+        "author": "Kazuo Ishiguro",
+        "genre": "History",
+        "mood": "relaxing"
+      }
+    ]
+  },
+  "9": {
+    "prompt": "Suggest a recipe for a party",
+    "domain": "food",
+    "method": "Sentence-BERT",
+    "result": [
+      {
+        "name": "Chinese Beverage",
+        "cuisine_type": "Chinese",
+        "rating": 3.9,
+        "mood": "warming"
+      },
+      {
+        "name": "French Dinner",
+        "cuisine_type": "French",
+        "rating": 4.3,
+        "mood": "warming"
+      },
+      {
+        "name": "Chinese Appetizer",
+        "cuisine_type": "Chinese",
+        "rating": 4.4,
+        "mood": "warming"
+      },
+      {
+        "name": "Peruvian Dinner",
+        "cuisine_type": "Peruvian",
+        "rating": 3.4,
+        "mood": "warming"
+      },
+      {
+        "name": "Chinese Side Dish",
+        "cuisine_type": "Chinese",
+        "rating": 3.7,
+        "mood": "warming"
+      }
+    ]
+  },
+  "10": {
+    "prompt": "What TV show is good for binge-watching?",
+    "domain": "movies",
+    "method": "Sentence-BERT",
+    "result": [
+      {
+        "title": "Funny Adventures",
+        "genre": "Comedy",
+        "rating": 4.9,
+        "mood": "melancholic"
+      },
+      {
+        "title": "Silly Adventures",
+        "genre": "Comedy",
+        "rating": 9.5,
+        "mood": "dark"
+      },
+      {
+        "title": "Beyond Quest",
+        "genre": "Family",
+        "rating": 8.0,
+        "mood": "funny"
+      },
+      {
+        "title": "A Quest",
+        "genre": "Crime",
+        "rating": 7.1,
+        "mood": "funny"
+      },
+      {
+        "title": "Beyond Dream",
+        "genre": "Drama",
+        "rating": 6.1,
+        "mood": "funny"
+      }
+    ]
+  }
+}
